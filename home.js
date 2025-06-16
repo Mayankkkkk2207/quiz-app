@@ -74,4 +74,23 @@ window.addEventListener('DOMContentLoaded', () => {
     if (usernameDisplay) {
         usernameDisplay.textContent = loggedInUser;
     }
+
+    const toggleSidebarButton = document.getElementById('toggle-sidebar');
+    const sidebar = document.querySelector('.w-64');
+    const mainContent = document.querySelector('.ml-64');
+
+    toggleSidebarButton.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+        mainContent.classList.toggle('ml-64');
+        localStorage.setItem('sidebarVisible', !sidebar.classList.contains('hidden'));
+    });
+
+    // Check sidebar state on page load
+    const sidebarVisible = localStorage.getItem('sidebarVisible') === 'true';
+    if (sidebarVisible) {
+        sidebar.classList.remove('hidden');
+        mainContent.classList.add('ml-64');
+    } else {
+        mainContent.classList.remove('ml-64');
+    }
 });

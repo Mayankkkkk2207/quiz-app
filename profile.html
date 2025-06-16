@@ -59,21 +59,5 @@
         </div>
     </div>
     <script src="profile.js"></script>
-    <script>
-        document.getElementById('toggle-sidebar').addEventListener('click', () => {
-            const sidebar = document.querySelector('.w-64');
-            sidebar.classList.toggle('hidden');
-            localStorage.setItem('sidebarVisible', !sidebar.classList.contains('hidden'));
-        });
-
-        // Check sidebar state on page load
-        window.addEventListener('load', () => {
-            const sidebar = document.querySelector('.w-64');
-            const sidebarVisible = localStorage.getItem('sidebarVisible') === 'true';
-            if (sidebarVisible) {
-                sidebar.classList.remove('hidden');
-            }
-        });
-    </script>
 </body>
 </html> 
