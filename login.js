@@ -5,8 +5,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     
     if(username && password) {
         // Store username in localStorage
-        localStorage.setItem('username', username);
-        // Redirect to home page
+        localStorage.setItem('loggedInUser', username);
         window.location.href = 'home.html';
     } else {
         alert('Please fill in all fields');
