@@ -7,9 +7,15 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50">
+    <button id="toggle-sidebar" class="fixed top-4 left-4 z-10 p-2 bg-blue-500 text-white rounded-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
     <div class="flex">
         <!-- Sidebar -->
-        <div class="w-64 h-screen bg-white shadow-lg fixed left-0 p-6">
+        <div class="w-64 h-screen bg-white shadow-lg fixed left-0 p-6 hidden">
             <div class="flex items-center mb-8">
                 <img src="logo.png" alt="Quiz Logo" class="h-8 w-8">
                 <span class="text-xl font-bold ml-2">Quiz Master</span>
@@ -35,7 +41,7 @@
                     </svg>
                     Assignments
                 </a>
-                <a href="#" class="flex items-center text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg">
+                <a href="profile.html" class="flex items-center text-gray-600 hover:bg-gray-50 px-4 py-2 rounded-lg">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
@@ -45,7 +51,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="ml-64 p-8 w-full">
+        <div class="ml-64 p-8 w-full md:ml-0 transition-all duration-300">
             <h1 class="text-2xl font-bold mb-6">Assignments</h1>
             <section id="assignments-list" class="grid grid-cols-2 gap-6">
                 <!-- Assignments will be dynamically loaded here -->
@@ -53,5 +59,21 @@
         </div>
     </div>
     <script src="assignments.js"></script>
+    <script>
+        document.getElementById('toggle-sidebar').addEventListener('click', () => {
+            const sidebar = document.querySelector('.w-64');
+            sidebar.classList.toggle('hidden');
+            localStorage.setItem('sidebarVisible', !sidebar.classList.contains('hidden'));
+        });
+
+        // Check sidebar state on page load
+        window.addEventListener('load', () => {
+            const sidebar = document.querySelector('.w-64');
+            const sidebarVisible = localStorage.getItem('sidebarVisible') === 'true';
+            if (sidebarVisible) {
+                sidebar.classList.remove('hidden');
+            }
+        });
+    </script>
 </body>
 </html> 
