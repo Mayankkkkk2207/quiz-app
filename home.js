@@ -1,4 +1,3 @@
-// Check if user is logged in
 window.onload = function() {
     // Get username from localStorage
     const loggedInUser = localStorage.getItem('loggedInUser');
@@ -92,5 +91,13 @@ window.addEventListener('DOMContentLoaded', () => {
         mainContent.classList.add('ml-64');
     } else {
         mainContent.classList.remove('ml-64');
+    }
+
+    const toggleBtn = document.getElementById('sidebar-toggle');
+    const sidebarEl = document.getElementById('sidebar');
+    if (toggleBtn && sidebarEl) {
+        toggleBtn.addEventListener('click', () => {
+            sidebarEl.classList.toggle('-translate-x-full');
+        });
     }
 });
