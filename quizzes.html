@@ -6,6 +6,7 @@
     <title>Quizzes</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body class="bg-gray-50">
     <div class="flex">
@@ -72,8 +73,19 @@
                     <button id="close-quiz-modal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
                     <h2 id="modal-quiz-title" class="text-2xl font-bold mb-4"></h2>
                     <form id="quiz-attempt-form">
-                        <div id="modal-quiz-questions"></div>
-                        <button type="submit" class="mt-6 w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Submit Answers</button>
+                        <div id="quiz-progress" class="mb-4 flex items-center">
+                            <div id="quiz-stepper" class="text-sm font-semibold text-gray-700 flex-1"></div>
+                            <div class="w-1/2 h-2 bg-gray-200 rounded-full ml-4">
+                                <div id="quiz-progress-bar" class="h-2 bg-blue-500 rounded-full transition-all duration-300" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div id="quiz-question-card" class="transition-opacity duration-300"></div>
+                        <div id="quiz-review-section" class="hidden mt-4"></div>
+                        <div class="flex justify-between mt-6">
+                            <button type="button" id="prev-question-btn" class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 flex items-center"><span class="material-icons mr-1">arrow_back</span>Previous</button>
+                            <button type="button" id="next-question-btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center">Next<span class="material-icons ml-1">arrow_forward</span></button>
+                            <button type="submit" id="submit-test-btn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden flex items-center"><span class="material-icons mr-1">check_circle</span>Submit Test</button>
+                        </div>
                     </form>
                     <div id="quiz-result" class="mt-4 text-center font-bold text-green-600 hidden"></div>
                 </div>

@@ -37,4 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load profile information into the page
     const profileElement = createProfileElement(profile);
     profileInfo.appendChild(profileElement);
+
+    // Logout button logic
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        });
+    }
 }); 
