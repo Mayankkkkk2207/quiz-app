@@ -60,6 +60,10 @@
                     <label class="block text-gray-700 mb-2" for="quiz-description">Description</label>
                     <textarea id="quiz-description" class="w-full px-3 py-2 border border-gray-300 rounded-md" required></textarea>
                 </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="quiz-timelimit">Time Limit (minutes)</label>
+                    <input id="quiz-timelimit" class="w-full px-3 py-2 border border-gray-300 rounded-md" type="number" min="1" max="180" placeholder="e.g. 30" />
+                </div>
                 <div id="questions-container"></div>
                 <button type="button" id="add-question-btn" class="mt-2 mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add Question</button>
                 <button type="submit" class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">Create Quiz</button>
@@ -67,9 +71,17 @@
             <section id="quizzes-list" class="grid grid-cols-2 gap-6">
                 <!-- Quizzes will be dynamically loaded here -->
             </section>
+            <!-- Submissions Modal (for teachers) -->
+            <div id="submissions-modal-overlay" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+                <div id="submissions-modal" class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-2xl relative">
+                    <button id="close-submissions-modal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
+                    <h2 id="submissions-modal-title" class="text-2xl font-bold mb-4">Quiz Submissions</h2>
+                    <div id="submissions-list"></div>
+                </div>
+            </div>
             <!-- Quiz Attempt Modal -->
             <div id="quiz-modal-overlay" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-                <div id="quiz-modal" class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-lg relative">
+                <div id="quiz-modal" class="bg-white rounded-2xl shadow-2xl p-12 w-full max-w-3xl relative">
                     <button id="close-quiz-modal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl">&times;</button>
                     <h2 id="modal-quiz-title" class="text-2xl font-bold mb-4"></h2>
                     <form id="quiz-attempt-form">
