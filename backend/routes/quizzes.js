@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const Quiz = require('../models/Quiz');
+const auth = require('../middleware/auth');
 
-// Create a new quiz (teacher)
-router.post('/', async (req, res) => {
+// Create a new quiz (teacher only)
+router.post('/', auth, async (req, res) => {
+  if (!req.user || req.user.role !== 'teacher') {
+    return res.status(403).json({ error: 'Only teachers can create quizzes.' });
+  }
   try {
     const quiz = new Quiz(req.body);
     await quiz.save();

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -24,6 +25,8 @@ db.once('open', () => {
 // Routes
 const quizzesRouter = require('./routes/quizzes');
 app.use('/api/quizzes', quizzesRouter);
+const authRouter = require('./routes/auth');
+app.use('/api/auth', authRouter);
 
 // Root route
 app.get('/', (req, res) => {
