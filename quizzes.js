@@ -380,6 +380,13 @@ document.addEventListener('DOMContentLoaded', () => {
         studentAnswers = Array(quiz.questions.length).fill(null);
         inReviewMode = false;
         modalQuizTitle.textContent = quiz.title;
+        // Always reset UI elements when starting a quiz
+        quizProgress.style.display = '';
+        if (timerDisplay) timerDisplay.style.display = '';
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = quiz.questions.length > 1 ? 'inline-flex' : 'none';
+        submitBtn.style.display = 'inline-flex';
+        submitBtn.classList.remove('hidden');
         quizResult.classList.add('hidden');
         quizResult.textContent = '';
         // Timer logic
