@@ -32,32 +32,6 @@ function startQuiz(category) {
     window.location.href = 'quiz.html';
 }
 
-// Mobile menu functionality
-document.getElementById('mobile-menu-button').addEventListener('click', function() {
-    const mobileMenu = document.getElementById('mobile-menu');
-    mobileMenu.classList.toggle('hidden');
-});
-
-// Close mobile menu when clicking outside
-document.addEventListener('click', function(event) {
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileMenuButton = document.getElementById('mobile-menu-button');
-    
-    if (!mobileMenuButton.contains(event.target) && !mobileMenu.contains(event.target)) {
-        mobileMenu.classList.add('hidden');
-    }
-});
-
-document.querySelector('button').addEventListener('click', function() {
-    // Replace with your email
-    const email = "your.email@example.com";
-    navigator.clipboard.writeText(email).then(function() {
-        alert('Email copied to clipboard!');
-    }).catch(function(err) {
-        console.error('Failed to copy email: ', err);
-    });
-});
-
 window.addEventListener('DOMContentLoaded', () => {
     // Get logged in username
     const loggedInUser = localStorage.getItem('loggedInUser');
@@ -74,30 +48,25 @@ window.addEventListener('DOMContentLoaded', () => {
         usernameDisplay.textContent = loggedInUser;
     }
 
-    const toggleSidebarButton = document.getElementById('toggle-sidebar');
-    const sidebar = document.querySelector('.w-64');
-    const mainContent = document.querySelector('.ml-64');
-
-    toggleSidebarButton.addEventListener('click', () => {
-        sidebar.classList.toggle('hidden');
-        mainContent.classList.toggle('ml-64');
-        localStorage.setItem('sidebarVisible', !sidebar.classList.contains('hidden'));
-    });
-
-    // Check sidebar state on page load
-    const sidebarVisible = localStorage.getItem('sidebarVisible') === 'true';
-    if (sidebarVisible) {
-        sidebar.classList.remove('hidden');
-        mainContent.classList.add('ml-64');
-    } else {
-        mainContent.classList.remove('ml-64');
-    }
-
-    const toggleBtn = document.getElementById('sidebar-toggle');
-    const sidebarEl = document.getElementById('sidebar');
-    if (toggleBtn && sidebarEl) {
-        toggleBtn.addEventListener('click', () => {
-            sidebarEl.classList.toggle('-translate-x-full');
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const closeMobileMenuBtn = document.getElementById('close-mobile-menu');
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            mobileMenu.classList.toggle('-translate-x-full');
         });
     }
+    if (closeMobileMenuBtn && mobileMenu) {
+        closeMobileMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            mobileMenu.classList.add('-translate-x-full');
+        });
+    }
+    document.addEventListener('click', function(event) {
+        if (mobileMenu && mobileMenuBtn && !mobileMenuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+            mobileMenu.classList.add('-translate-x-full');
+        }
+    });
 });
