@@ -159,11 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
             submissions.forEach(sub => {
                 const subDiv = document.createElement('div');
                 subDiv.className = 'border rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2';
+                const fileUrl = `http://localhost:5000${sub.fileUrl}`;
                 subDiv.innerHTML = `
                     <div>
                         <div class="font-semibold">${sub.student.username} (${sub.student.email})</div>
                         <div class="text-sm text-gray-500">Submitted: ${new Date(sub.submittedAt).toLocaleString()}</div>
-                        <a href="${sub.fileUrl}" target="_blank" class="text-blue-600 underline">Download File</a>
+                        <a href="${fileUrl}" target="_blank" class="text-blue-600 underline">Download File</a>
                     </div>
                     <div class="flex flex-col gap-2 md:items-end">
                         <div>

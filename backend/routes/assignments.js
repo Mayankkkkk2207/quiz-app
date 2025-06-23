@@ -51,16 +51,21 @@ router.get('/', auth, async (req, res) => {
 // Submit assignment (student, file upload)
 router.post('/:id/submit', auth, requireRole('student'), upload.single('file'), async (req, res) => {
   try {
+    console.log('--- Assignment submit route hit ---');
     const assignment = await Assignment.findById(req.params.id);
     if (!assignment) {
+      console.log('Assignment not found');
       return res.status(404).json({ error: 'Assignment not found' });
     }
     if (new Date() > new Date(assignment.deadline)) {
+      console.log('Deadline passed');
       return res.status(400).json({ error: 'Deadline has passed' });
     }
     if (!req.file) {
+      console.log('No file uploaded');
       return res.status(400).json({ error: 'File is required' });
     }
+    console.log('User:', req.user);
     const submission = new AssignmentSubmission({
       assignmentId: assignment._id,
       student: {
@@ -71,9 +76,11 @@ router.post('/:id/submit', auth, requireRole('student'), upload.single('file'), 
       fileUrl: `/uploads/assignments/${req.file.filename}`
     });
     await submission.save();
+    console.log('Submission saved');
     res.status(201).json(submission);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to submit assignment' });
+    console.error('Error in assignment submit:', err);
+    res.status(500).json({ error: 'Failed to submit assignment', details: err.message });
   }
 });
 
