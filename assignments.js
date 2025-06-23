@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Fetch assignments from backend
-    fetch('/backend/assignments', {
+    fetch('http://localhost:5000/assignments', {
         headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => res.json())
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const description = document.getElementById('assignment-description').value;
             const deadline = document.getElementById('assignment-deadline').value;
             try {
-                const res = await fetch('/backend/assignments', {
+                const res = await fetch('http://localhost:5000/assignments', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
             try {
-                const res = await fetch(`/backend/assignments/${currentAssignmentId}/submit`, {
+                const res = await fetch(`http://localhost:5000/assignments/${currentAssignmentId}/submit`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadSubmissions(assignmentId) {
         submissionsList.innerHTML = '<p>Loading...</p>';
         try {
-            const res = await fetch(`/backend/assignments/${assignmentId}/submissions`, {
+            const res = await fetch(`http://localhost:5000/assignments/${assignmentId}/submissions`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch submissions');
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const submissionId = form.getAttribute('data-feedback-form');
                     const feedback = form.feedback.value;
                     try {
-                        const res = await fetch(`/backend/assignments/submission/${submissionId}/feedback`, {
+                        const res = await fetch(`http://localhost:5000/assignments/submission/${submissionId}/feedback`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

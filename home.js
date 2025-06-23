@@ -1,29 +1,29 @@
 window.onload = function() {
     // Get username from localStorage
-    const loggedInUser = localStorage.getItem('loggedInUser');
+    const user = JSON.parse(localStorage.getItem('user'));
     
     // Check if user is logged in
-    if (!loggedInUser) {
-        window.location.href = 'login.html';
+    if (!user) {
+        window.location.href = 'index.html';
         return;
     }
 
     // Update username display in the header
     const usernameDisplay = document.getElementById('username-display');
     if (usernameDisplay) {
-        usernameDisplay.textContent = loggedInUser;
+        usernameDisplay.textContent = user.username;
     }
 
     // Add logout functionality if needed
     document.querySelector('.logout-button')?.addEventListener('click', function() {
-        localStorage.removeItem('loggedInUser');
-        window.location.href = 'login.html';
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
     });
 }
 
 function logout() {
-    localStorage.removeItem('username');
-    window.location.href = 'login.html';
+    localStorage.removeItem('user');
+    window.location.href = 'index.html';
 }
 
 function startQuiz(category) {
@@ -34,18 +34,18 @@ function startQuiz(category) {
 
 window.addEventListener('DOMContentLoaded', () => {
     // Get logged in username
-    const loggedInUser = localStorage.getItem('loggedInUser');
+    const user = JSON.parse(localStorage.getItem('user'));
     
     // If no user is logged in, redirect to login
-    if (!loggedInUser) {
-        window.location.href = 'login.html';
+    if (!user) {
+        window.location.href = 'index.html';
         return;
     }
 
     // Update username in the profile section
     const usernameDisplay = document.getElementById('username-display');
     if (usernameDisplay) {
-        usernameDisplay.textContent = loggedInUser;
+        usernameDisplay.textContent = user.username;
     }
 
     // Mobile menu toggle

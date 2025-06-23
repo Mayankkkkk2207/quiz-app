@@ -53,11 +53,9 @@ loginForm.addEventListener('submit', async function(e) {
             });
             const data = await res.json();
             if (res.ok) {
-                // Store JWT and user info
+                // Store JWT and user info as a single object
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('loggedInUser', data.user.username);
-                localStorage.setItem('loggedInEmail', data.user.email);
-                localStorage.setItem('loggedInRole', data.user.role);
+                localStorage.setItem('user', JSON.stringify(data.user));
                 // Store login date/time as joinDate
                 const now = new Date();
                 const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };

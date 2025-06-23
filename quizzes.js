@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizResult = document.getElementById('quiz-result');
 
     // Check user role
-    const role = localStorage.getItem('loggedInRole');
+    const user = JSON.parse(localStorage.getItem('user'));
+    const role = user ? user.role : null;
     if (role === 'teacher') {
         quizForm.classList.remove('hidden');
     } else {

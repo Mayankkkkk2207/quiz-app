@@ -2,9 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileInfo = document.getElementById('profile-info');
 
     // Get username, email, role, and joinDate from localStorage, fallback to defaults
-    const username = localStorage.getItem('loggedInUser') || 'User Name';
-    const email = localStorage.getItem('loggedInEmail') || 'user@example.com';
-    const role = localStorage.getItem('loggedInRole') || 'Quiz Enthusiast';
+    const user = JSON.parse(localStorage.getItem('user'));
+    const username = user ? user.username : 'User Name';
+    const email = user ? user.email : 'user@example.com';
+    const role = user ? user.role : 'Quiz Enthusiast';
     const joinDate = localStorage.getItem('joinDate') || 'Unknown';
 
     // Example profile data

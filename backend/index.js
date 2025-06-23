@@ -28,7 +28,7 @@ app.use('/api/quizzes', quizzesRouter);
 const authRouter = require('./routes/auth');
 app.use('/api/auth', authRouter);
 const assignmentsRouter = require('./routes/assignments');
-app.use('/api/assignments', assignmentsRouter);
+app.use('/assignments', assignmentsRouter);
 
 // Root route
 app.get('/', (req, res) => {
