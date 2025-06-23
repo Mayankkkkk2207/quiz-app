@@ -1,34 +1,231 @@
 document.addEventListener('DOMContentLoaded', () => {
     const assignmentsList = document.getElementById('assignments-list');
+    const user = JSON.parse(localStorage.getItem('user'));
+    const token = localStorage.getItem('token');
+    const isTeacher = user && user.role === 'teacher';
 
-    // Example assignment data
-    const assignments = [
-        { title: 'Math Homework', description: 'Complete exercises 1-10 on page 23', due: 'Due: 2 days' },
-        { title: 'Science Project', description: 'Build a model volcano', due: 'Due: 1 week' },
-        { title: 'History Essay', description: 'Write about the Industrial Revolution', due: 'Due: 5 days' },
-        { title: 'English Reading', description: 'Read chapters 4-6 of the novel', due: 'Due: 3 days' }
-    ];
+    // Add Create Assignment button for teachers
+    if (isTeacher) {
+        const createBtn = document.createElement('button');
+        createBtn.textContent = 'Create Assignment';
+        createBtn.className = 'mb-6 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700';
+        createBtn.onclick = () => {
+            // TODO: Show create assignment modal
+            alert('Show create assignment modal');
+        };
+        assignmentsList.parentElement.insertBefore(createBtn, assignmentsList);
+    }
 
-    // Function to create assignment elements
-    const createAssignmentElement = (assignment) => {
-        const assignmentElement = document.createElement('div');
-        assignmentElement.className = 'bg-white p-6 rounded-xl shadow-sm';
-        assignmentElement.innerHTML = `
-            <h3 class="text-xl font-semibold mb-4">${assignment.title}</h3>
-            <p class="text-gray-600 mb-4">${assignment.description}</p>
-            <div class="flex justify-between items-center">
-                <span class="text-sm text-gray-500">${assignment.due}</span>
-                <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-                    View Assignment
-                </button>
-            </div>
-        `;
-        return assignmentElement;
-    };
-
-    // Load assignments into the page
-    assignments.forEach(assignment => {
-        const assignmentElement = createAssignmentElement(assignment);
-        assignmentsList.appendChild(assignmentElement);
+    // Fetch assignments from backend
+    fetch('/backend/assignments', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(res => res.json())
+    .then(assignments => {
+        assignmentsList.innerHTML = '';
+        assignments.forEach(assignment => {
+            const deadline = new Date(assignment.deadline);
+            const now = new Date();
+            const dueStr = deadline > now ? `Due: ${deadline.toLocaleString()}` : 'Deadline passed';
+            const card = document.createElement('div');
+            card.className = 'bg-white p-6 rounded-xl shadow-sm';
+            card.innerHTML = `
+                <h3 class="text-xl font-semibold mb-4">${assignment.title}</h3>
+                <p class="text-gray-600 mb-4">${assignment.description}</p>
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-500">${dueStr}</span>
+                    <div class="flex gap-2">
+                        ${isTeacher ? `<button class='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600' data-view-submissions='${assignment._id}'>View Submissions</button>` : `<button class='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600' data-submit='${assignment._id}'>Submit Assignment</button>`}
+                    </div>
+                </div>
+            `;
+            assignmentsList.appendChild(card);
+        });
+        // Attach event listeners for buttons
+        assignmentsList.querySelectorAll('[data-submit]').forEach(btn => {
+            btn.onclick = (e) => {
+                const id = btn.getAttribute('data-submit');
+                // TODO: Show submission modal/form
+                alert('Show submission modal for assignment ' + id);
+            };
+        });
+        assignmentsList.querySelectorAll('[data-view-submissions]').forEach(btn => {
+            btn.onclick = (e) => {
+                const id = btn.getAttribute('data-view-submissions');
+                // TODO: Show submissions modal/list for assignment
+                alert('Show submissions for assignment ' + id);
+            };
+        });
+    })
+    .catch(err => {
+        assignmentsList.innerHTML = '<p class="text-red-500">Failed to load assignments.</p>';
     });
+
+    // Modal logic and form handlers
+    let currentAssignmentId = null;
+
+    function showModal(id) {
+        document.getElementById(id).classList.remove('hidden');
+    }
+    function hideModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    // Assignment Creation Modal (Teacher)
+    const createModal = document.getElementById('create-assignment-modal');
+    const createForm = document.getElementById('create-assignment-form');
+    const cancelCreateBtn = document.getElementById('cancel-create-assignment');
+    if (createForm && cancelCreateBtn) {
+        cancelCreateBtn.onclick = () => hideModal('create-assignment-modal');
+        createForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('assignment-title').value;
+            const description = document.getElementById('assignment-description').value;
+            const deadline = document.getElementById('assignment-deadline').value;
+            try {
+                const res = await fetch('/backend/assignments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ title, description, deadline })
+                });
+                if (!res.ok) throw new Error('Failed to create assignment');
+                hideModal('create-assignment-modal');
+                location.reload();
+            } catch (err) {
+                alert(err.message);
+            }
+        };
+    }
+
+    // Assignment Submission Modal (Student)
+    const submitModal = document.getElementById('submit-assignment-modal');
+    const submitForm = document.getElementById('submit-assignment-form');
+    const cancelSubmitBtn = document.getElementById('cancel-submit-assignment');
+    if (submitForm && cancelSubmitBtn) {
+        cancelSubmitBtn.onclick = () => hideModal('submit-assignment-modal');
+        submitForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const fileInput = document.getElementById('assignment-file');
+            if (!fileInput.files.length) {
+                alert('Please select a file');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            try {
+                const res = await fetch(`/backend/assignments/${currentAssignmentId}/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.error || 'Failed to submit assignment');
+                }
+                hideModal('submit-assignment-modal');
+                location.reload();
+            } catch (err) {
+                alert(err.message);
+            }
+        };
+    }
+
+    // View Submissions Modal (Teacher)
+    const viewSubmissionsModal = document.getElementById('view-submissions-modal');
+    const submissionsList = document.getElementById('submissions-list');
+    const closeViewSubmissionsBtn = document.getElementById('close-view-submissions');
+    if (closeViewSubmissionsBtn) {
+        closeViewSubmissionsBtn.onclick = () => hideModal('view-submissions-modal');
+    }
+
+    async function loadSubmissions(assignmentId) {
+        submissionsList.innerHTML = '<p>Loading...</p>';
+        try {
+            const res = await fetch(`/backend/assignments/${assignmentId}/submissions`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error('Failed to fetch submissions');
+            const submissions = await res.json();
+            if (submissions.length === 0) {
+                submissionsList.innerHTML = '<p class="text-gray-500">No submissions yet.</p>';
+                return;
+            }
+            submissionsList.innerHTML = '';
+            submissions.forEach(sub => {
+                const subDiv = document.createElement('div');
+                subDiv.className = 'border rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2';
+                subDiv.innerHTML = `
+                    <div>
+                        <div class="font-semibold">${sub.student.username} (${sub.student.email})</div>
+                        <div class="text-sm text-gray-500">Submitted: ${new Date(sub.submittedAt).toLocaleString()}</div>
+                        <a href="${sub.fileUrl}" target="_blank" class="text-blue-600 underline">Download File</a>
+                    </div>
+                    <div class="flex flex-col gap-2 md:items-end">
+                        <div>
+                            ${sub.feedback ? `<span class='text-green-600'>Feedback: ${sub.feedback}</span>` : `
+                            <form data-feedback-form='${sub._id}' class='flex gap-2'>
+                                <input type='text' name='feedback' placeholder='Feedback' class='border rounded px-2 py-1' required />
+                                <button type='submit' class='px-3 py-1 bg-blue-500 text-white rounded'>Send</button>
+                            </form>`}
+                        </div>
+                    </div>
+                `;
+                submissionsList.appendChild(subDiv);
+            });
+            // Attach feedback form handlers
+            submissionsList.querySelectorAll('form[data-feedback-form]').forEach(form => {
+                form.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const submissionId = form.getAttribute('data-feedback-form');
+                    const feedback = form.feedback.value;
+                    try {
+                        const res = await fetch(`/backend/assignments/submission/${submissionId}/feedback`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ feedback })
+                        });
+                        if (!res.ok) throw new Error('Failed to send feedback');
+                        await loadSubmissions(assignmentId); // Refresh list
+                    } catch (err) {
+                        alert(err.message);
+                    }
+                };
+            });
+        } catch (err) {
+            submissionsList.innerHTML = `<p class='text-red-500'>${err.message}</p>`;
+        }
+    }
+
+    // Show modals on button click
+    if (isTeacher) {
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.textContent === 'Create Assignment') {
+                showModal('create-assignment-modal');
+            }
+        });
+    }
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.hasAttribute('data-submit')) {
+            currentAssignmentId = e.target.getAttribute('data-submit');
+            showModal('submit-assignment-modal');
+        }
+    });
+
+    if (isTeacher) {
+        document.addEventListener('click', function(e) {
+            if (e.target && e.target.hasAttribute('data-view-submissions')) {
+                const assignmentId = e.target.getAttribute('data-view-submissions');
+                showModal('view-submissions-modal');
+                loadSubmissions(assignmentId);
+            }
+        });
+    }
 }); 

@@ -102,6 +102,44 @@
             </section>
         </div>
     </div>
+    <!-- Assignment Creation Modal (Teacher) -->
+    <div id="create-assignment-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+            <h2 class="text-xl font-bold mb-4">Create Assignment</h2>
+            <form id="create-assignment-form" class="space-y-4">
+                <input type="text" id="assignment-title" class="w-full border rounded px-3 py-2" placeholder="Title" required />
+                <textarea id="assignment-description" class="w-full border rounded px-3 py-2" placeholder="Description" required></textarea>
+                <input type="datetime-local" id="assignment-deadline" class="w-full border rounded px-3 py-2" required />
+                <div class="flex justify-end gap-2">
+                    <button type="button" id="cancel-create-assignment" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Assignment Submission Modal (Student) -->
+    <div id="submit-assignment-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+            <h2 class="text-xl font-bold mb-4">Submit Assignment</h2>
+            <form id="submit-assignment-form" class="space-y-4">
+                <input type="file" id="assignment-file" class="w-full" accept=".pdf,.doc,.docx,.txt,.zip,.rar,.png,.jpg,.jpeg" required />
+                <div class="flex justify-end gap-2">
+                    <button type="button" id="cancel-submit-assignment" class="px-4 py-2 bg-gray-300 rounded">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- View Submissions Modal (Teacher) -->
+    <div id="view-submissions-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+            <h2 class="text-xl font-bold mb-4">Assignment Submissions</h2>
+            <div id="submissions-list" class="space-y-4"></div>
+            <div class="flex justify-end mt-4">
+                <button type="button" id="close-view-submissions" class="px-4 py-2 bg-gray-300 rounded">Close</button>
+            </div>
+        </div>
+    </div>
     <script src="assignments.js"></script>
     <script>
     // Mobile menu toggle
