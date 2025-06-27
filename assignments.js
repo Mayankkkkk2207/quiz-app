@@ -22,40 +22,151 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(res => res.json())
     .then(assignments => {
-        assignmentsList.innerHTML = '';
-        assignments.forEach(assignment => {
-            const deadline = new Date(assignment.deadline);
-            const now = new Date();
-            const dueStr = deadline > now ? `Due: ${deadline.toLocaleString()}` : 'Deadline passed';
-            const card = document.createElement('div');
-            card.className = 'bg-white p-6 rounded-xl shadow-sm';
-            card.innerHTML = `
-                <h3 class="text-xl font-semibold mb-4">${assignment.title}</h3>
-                <p class="text-gray-600 mb-4">${assignment.description}</p>
-                <div class="flex justify-between items-center">
-                    <span class="text-sm text-gray-500">${dueStr}</span>
-                    <div class="flex gap-2">
-                        ${isTeacher ? `<button class='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600' data-view-submissions='${assignment._id}'>View Submissions</button>` : `<button class='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600' data-submit='${assignment._id}'>Submit Assignment</button>`}
+        const pendingSection = document.getElementById('pending-assignments-section');
+        const submittedSection = document.getElementById('submitted-assignments-section');
+        const assignmentsList = document.getElementById('assignments-list');
+        const pendingList = document.getElementById('pending-assignments-list');
+        const submittedList = document.getElementById('submitted-assignments-list');
+        if (!isTeacher) {
+            // Hide teacher section
+            assignmentsList.style.display = 'none';
+            // Show student sections
+            pendingSection.style.display = '';
+            submittedSection.style.display = '';
+            pendingList.innerHTML = '';
+            submittedList.innerHTML = '';
+            (async () => {
+                for (const assignment of assignments) {
+                    const deadline = new Date(assignment.deadline);
+                    const now = new Date();
+                    const dueStr = deadline > now ? `Due: ${deadline.toLocaleString()}` : 'Deadline passed';
+                    let hasSubmitted = false;
+                    let submission = null;
+                    try {
+                        const res = await fetch(`http://localhost:5000/assignments/${assignment._id}/mysubmission`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (res.ok) {
+                            submission = await res.json();
+                            hasSubmitted = !!submission;
+                        }
+                    } catch (err) {
+                        // Ignore error, fallback to allow submission
+                    }
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-6 rounded-xl shadow-sm';
+                    if (hasSubmitted) {
+                        card.innerHTML = `
+                            <h3 class="text-xl font-semibold mb-4">${assignment.title}</h3>
+                            <p class="text-gray-600 mb-4">${assignment.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">${dueStr}</span>
+                                <div class="flex gap-2">
+                                    <button class='px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600' data-edit-submission='${assignment._id}'>Edit Submission</button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        card.innerHTML = `
+                            <h3 class="text-xl font-semibold mb-4">${assignment.title}</h3>
+                            <p class="text-gray-600 mb-4">${assignment.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-500">${dueStr}</span>
+                                <div class="flex gap-2">
+                                    <button class='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600' data-submit='${assignment._id}'>Submit Assignment</button>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    if (hasSubmitted) {
+                        submittedList.appendChild(card);
+                    } else {
+                        pendingList.appendChild(card);
+                    }
+                }
+            })();
+        } else {
+            // Show teacher section
+            assignmentsList.style.display = '';
+            // Hide student sections
+            pendingSection.style.display = 'none';
+            submittedSection.style.display = 'none';
+            assignmentsList.innerHTML = '';
+            assignments.forEach(assignment => {
+                const deadline = new Date(assignment.deadline);
+                const now = new Date();
+                const dueStr = deadline > now ? `Due: ${deadline.toLocaleString()}` : 'Deadline passed';
+                const card = document.createElement('div');
+                card.className = 'bg-white p-6 rounded-xl shadow-sm';
+                card.innerHTML = `
+                    <h3 class="text-xl font-semibold mb-4">${assignment.title}</h3>
+                    <p class="text-gray-600 mb-4">${assignment.description}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500">${dueStr}</span>
+                        <div class="flex gap-2">
+                            <button class='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600' data-view-submissions='${assignment._id}'>View Submissions</button>
+                            <button class='px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600' data-edit='${assignment._id}'>Edit</button>
+                            <button class='px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600' data-delete='${assignment._id}'>Delete</button>
+                        </div>
                     </div>
-                </div>
-            `;
-            assignmentsList.appendChild(card);
-        });
-        // Attach event listeners for buttons
-        assignmentsList.querySelectorAll('[data-submit]').forEach(btn => {
-            btn.onclick = (e) => {
-                const id = btn.getAttribute('data-submit');
-                // TODO: Show submission modal/form
-                alert('Show submission modal for assignment ' + id);
-            };
-        });
-        assignmentsList.querySelectorAll('[data-view-submissions]').forEach(btn => {
-            btn.onclick = (e) => {
-                const id = btn.getAttribute('data-view-submissions');
-                // TODO: Show submissions modal/list for assignment
-                alert('Show submissions for assignment ' + id);
-            };
-        });
+                `;
+                assignmentsList.appendChild(card);
+            });
+        }
+        // Attach event listeners for buttons (after all cards are rendered)
+        setTimeout(() => {
+            assignmentsList.querySelectorAll('[data-submit]').forEach(btn => {
+                btn.onclick = (e) => {
+                    const id = btn.getAttribute('data-submit');
+                    // TODO: Show submission modal/form
+                    alert('Show submission modal for assignment ' + id);
+                };
+            });
+            assignmentsList.querySelectorAll('[data-view-submissions]').forEach(btn => {
+                btn.onclick = (e) => {
+                    const id = btn.getAttribute('data-view-submissions');
+                    // TODO: Show submissions modal/list for assignment
+                    alert('Show submissions for assignment ' + id);
+                };
+            });
+            assignmentsList.querySelectorAll('[data-edit]').forEach(btn => {
+                btn.onclick = (e) => {
+                    const id = btn.getAttribute('data-edit');
+                    const assignment = assignments.find(a => a._id === id);
+                    if (!assignment) return;
+                    document.getElementById('edit-assignment-title').value = assignment.title;
+                    document.getElementById('edit-assignment-description').value = assignment.description;
+                    document.getElementById('edit-assignment-deadline').value = assignment.deadline.slice(0, 16);
+                    window.currentEditAssignmentId = id;
+                    showModal('edit-assignment-modal');
+                };
+            });
+            assignmentsList.querySelectorAll('[data-delete]').forEach(btn => {
+                btn.onclick = async (e) => {
+                    const id = btn.getAttribute('data-delete');
+                    if (confirm('Are you sure you want to delete this assignment? This will also delete all related submissions.')) {
+                        try {
+                            const res = await fetch(`http://localhost:5000/assignments/${id}`, {
+                                method: 'DELETE',
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (!res.ok) throw new Error('Failed to delete assignment');
+                            location.reload();
+                        } catch (err) {
+                            alert(err.message);
+                        }
+                    }
+                };
+            });
+            // Edit Submission button for students
+            document.querySelectorAll('[data-edit-submission]').forEach(btn => {
+                btn.onclick = (e) => {
+                    const id = btn.getAttribute('data-edit-submission');
+                    currentAssignmentId = id;
+                    showModal('submit-assignment-modal');
+                };
+            });
+        }, 100);
     })
     .catch(err => {
         assignmentsList.innerHTML = '<p class="text-red-500">Failed to load assignments.</p>';
@@ -203,6 +314,35 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             submissionsList.innerHTML = `<p class='text-red-500'>${err.message}</p>`;
         }
+    }
+
+    // Edit Assignment Modal logic
+    const editModal = document.getElementById('edit-assignment-modal');
+    const editForm = document.getElementById('edit-assignment-form');
+    const cancelEditBtn = document.getElementById('cancel-edit-assignment');
+    if (editForm && cancelEditBtn) {
+        cancelEditBtn.onclick = () => hideModal('edit-assignment-modal');
+        editForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('edit-assignment-title').value;
+            const description = document.getElementById('edit-assignment-description').value;
+            const deadline = document.getElementById('edit-assignment-deadline').value;
+            try {
+                const res = await fetch(`http://localhost:5000/assignments/${window.currentEditAssignmentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ title, description, deadline })
+                });
+                if (!res.ok) throw new Error('Failed to update assignment');
+                hideModal('edit-assignment-modal');
+                location.reload();
+            } catch (err) {
+                alert(err.message);
+            }
+        };
     }
 
     // Show modals on button click

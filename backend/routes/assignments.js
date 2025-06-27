@@ -51,21 +51,21 @@ router.get('/', auth, async (req, res) => {
 // Submit assignment (student, file upload)
 router.post('/:id/submit', auth, requireRole('student'), upload.single('file'), async (req, res) => {
   try {
-    console.log('--- Assignment submit route hit ---');
     const assignment = await Assignment.findById(req.params.id);
     if (!assignment) {
-      console.log('Assignment not found');
       return res.status(404).json({ error: 'Assignment not found' });
     }
     if (new Date() > new Date(assignment.deadline)) {
-      console.log('Deadline passed');
       return res.status(400).json({ error: 'Deadline has passed' });
     }
     if (!req.file) {
-      console.log('No file uploaded');
       return res.status(400).json({ error: 'File is required' });
     }
-    console.log('User:', req.user);
+    // Check for existing submission by this student for this assignment
+    const existing = await AssignmentSubmission.findOne({ assignmentId: assignment._id, 'student.userId': req.user.id });
+    if (existing) {
+      return res.status(400).json({ error: 'You have already submitted this assignment.' });
+    }
     const submission = new AssignmentSubmission({
       assignmentId: assignment._id,
       student: {
@@ -76,10 +76,8 @@ router.post('/:id/submit', auth, requireRole('student'), upload.single('file'), 
       fileUrl: `/uploads/assignments/${req.file.filename}`
     });
     await submission.save();
-    console.log('Submission saved');
     res.status(201).json(submission);
   } catch (err) {
-    console.error('Error in assignment submit:', err);
     res.status(500).json({ error: 'Failed to submit assignment', details: err.message });
   }
 });
@@ -112,6 +110,55 @@ router.post('/submission/:submissionId/feedback', auth, requireRole('teacher'), 
     res.json(submission);
   } catch (err) {
     res.status(500).json({ error: 'Failed to add feedback' });
+  }
+});
+
+// Edit assignment (teacher only)
+router.put('/:id', auth, requireRole('teacher'), async (req, res) => {
+  try {
+    const assignment = await Assignment.findById(req.params.id);
+    if (!assignment) return res.status(404).json({ error: 'Assignment not found' });
+    if (assignment.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'You can only edit your own assignments.' });
+    }
+    const { title, description, deadline } = req.body;
+    if (title) assignment.title = title;
+    if (description) assignment.description = description;
+    if (deadline) assignment.deadline = deadline;
+    await assignment.save();
+    res.json(assignment);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update assignment' });
+  }
+});
+
+// Delete assignment (teacher only)
+router.delete('/:id', auth, requireRole('teacher'), async (req, res) => {
+  try {
+    const assignment = await Assignment.findById(req.params.id);
+    if (!assignment) return res.status(404).json({ error: 'Assignment not found' });
+    if (assignment.createdBy.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'You can only delete your own assignments.' });
+    }
+    await AssignmentSubmission.deleteMany({ assignmentId: assignment._id });
+    await assignment.deleteOne();
+    res.json({ message: 'Assignment and related submissions deleted.' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete assignment' });
+  }
+});
+
+// Get the current student's submission for an assignment
+router.get('/:id/mysubmission', auth, requireRole('student'), async (req, res) => {
+  try {
+    const submission = await AssignmentSubmission.findOne({
+      assignmentId: req.params.id,
+      'student.userId': req.user.id
+    });
+    if (!submission) return res.json(null);
+    res.json(submission);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch submission' });
   }
 });
 
