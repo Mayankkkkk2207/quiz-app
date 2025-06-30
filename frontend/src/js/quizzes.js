@@ -241,17 +241,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             quizzes.forEach(quiz => {
-                const quizElement = document.createElement('div');
-                quizElement.className = 'bg-white p-6 rounded-xl shadow-sm';
-                quizElement.innerHTML = `
-                    <h3 class="text-xl font-semibold mb-4">${quiz.title}</h3>
-                    <p class="text-gray-600 mb-4">${quiz.description}</p>
-                    <div class="flex justify-between items-center">
+        const quizElement = document.createElement('div');
+        quizElement.className = 'bg-white p-6 rounded-xl shadow-sm';
+        quizElement.innerHTML = `
+            <h3 class="text-xl font-semibold mb-4">${quiz.title}</h3>
+            <p class="text-gray-600 mb-4">${quiz.description}</p>
+            <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-500">${quiz.questions.length} questions</span>
                         <div class="flex gap-2">
                             <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" data-quizid="${quiz._id}">
-                                Start Quiz
-                            </button>
+                    Start Quiz
+                </button>
                             ${role === 'teacher' ? `<button class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600" data-viewsubmissions="${quiz._id}">View Submissions</button>` : ''}
                             ${role === 'teacher' ? `<button class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600" data-deletequiz="${quiz._id}">Delete</button>` : ''}
                         </div>

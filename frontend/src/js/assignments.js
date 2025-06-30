@@ -99,9 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const card = document.createElement('div');
                 card.className = 'bg-white p-6 rounded-xl shadow-sm';
                 card.innerHTML = `
-                    <h3 class="text-xl font-semibold mb-4">${assignment.title}</h3>
-                    <p class="text-gray-600 mb-4">${assignment.description}</p>
-                    <div class="flex justify-between items-center">
+            <h3 class="text-xl font-semibold mb-4">${assignment.title}</h3>
+            <p class="text-gray-600 mb-4">${assignment.description}</p>
+            <div class="flex justify-between items-center">
                         <span class="text-sm text-gray-500">${dueStr}</span>
                         <div class="flex gap-2">
                             <button class='px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600' data-view-submissions='${assignment._id}'>View Submissions</button>
@@ -285,8 +285,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <button type='submit' class='px-3 py-1 bg-blue-500 text-white rounded'>Send</button>
                             </form>`}
                         </div>
-                    </div>
-                `;
+            </div>
+        `;
                 submissionsList.appendChild(subDiv);
             });
             // Attach feedback form handlers
