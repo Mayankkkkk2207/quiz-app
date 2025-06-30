@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));
     const token = localStorage.getItem('token');
     const isTeacher = user && user.role === 'teacher';
+    let assignments = [];
 
     // Add Create Assignment button for teachers
     if (isTeacher) {
@@ -21,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => res.json())
-    .then(assignments => {
+    .then(data => {
+        assignments = data;
         const pendingSection = document.getElementById('pending-assignments-section');
         const submittedSection = document.getElementById('submitted-assignments-section');
         const assignmentsList = document.getElementById('assignments-list');
@@ -62,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-500">${dueStr}</span>
                                 <div class="flex gap-2">
-                                    <button class='px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600' data-edit-submission='${assignment._id}'>Edit Submission</button>
+                                    <button class='px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600' data-edit-submission='${assignment._id}' ${deadline > now ? '' : 'disabled style="opacity:0.5;cursor:not-allowed;"'}>Edit Submission</button>
                                 </div>
                             </div>
                         `;
@@ -235,13 +237,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: formData
                 });
                 if (!res.ok) {
-                    const errData = await res.json();
-                    throw new Error(errData.error || 'Failed to submit assignment');
+                    let errMsg = 'Failed to submit assignment';
+                    try {
+                        const errData = await res.json();
+                        errMsg = errData.error || errMsg;
+                    } catch (jsonErr) {
+                        // Not JSON, keep default message
+                    }
+                    throw new Error(errMsg);
                 }
                 hideModal('submit-assignment-modal');
-                location.reload();
+                setTimeout(() => {
+                    location.reload();
+                }, 300);
             } catch (err) {
-                alert(err.message);
+                console.error('Assignment submission error:', err);
             }
         };
     }

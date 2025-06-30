@@ -76,9 +76,24 @@ router.post('/:id/submit', auth, requireRole('student'), upload.single('file'), 
       fileUrl: `/uploads/assignments/${req.file.filename}`
     });
     await submission.save();
-    res.status(201).json(submission);
+    if (!res.ok) {
+      let errMsg = 'Failed to submit assignment';
+      try {
+        const errData = await res.json();
+        errMsg = errData.error || errMsg;
+      } catch (jsonErr) {
+        // Not JSON, keep default message
+      }
+      throw new Error(errMsg);
+    }
+    hideModal('submit-assignment-modal');
+    // Add a small delay before reloading the page
+    setTimeout(() => {
+      location.reload();
+    }, 300);
   } catch (err) {
-    res.status(500).json({ error: 'Failed to submit assignment', details: err.message });
+    // Optionally log the error for debugging, but don't show an alert to the user
+    console.error('Assignment submission error:', err);
   }
 });
 
