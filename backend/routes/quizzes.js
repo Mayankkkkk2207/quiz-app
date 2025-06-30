@@ -4,6 +4,35 @@ const Quiz = require('../models/Quiz');
 const Submission = require('../models/Submission');
 const { auth } = require('../middleware/auth');
 
+// Get all quiz submissions for the logged-in student
+router.get('/my-submissions', auth, async (req, res) => {
+  console.log('GET /api/quizzes/my-submissions called by', req.user && req.user.email);
+  try {
+    if (!req.user || req.user.role !== 'student') {
+      return res.status(403).json({ error: 'Only students can view their submissions.' });
+    }
+    const submissions = await Submission.find({ 'student.email': req.user.email }).sort({ submittedAt: -1 });
+    // Populate quiz title and questions for each submission
+    const results = await Promise.all(submissions.map(async (sub) => {
+      const quiz = await Quiz.findById(sub.quizId);
+      return {
+        _id: sub._id,
+        quizId: sub.quizId,
+        quizTitle: quiz ? quiz.title : 'Quiz',
+        questions: quiz ? quiz.questions : [],
+        answers: sub.answers,
+        score: sub.score,
+        total: sub.total,
+        submittedAt: sub.submittedAt
+      };
+    }));
+    res.json(results);
+  } catch (err) {
+    console.error('Error in /my-submissions:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Create a new quiz (teacher only)
 router.post('/', auth, async (req, res) => {
   if (!req.user || req.user.role !== 'teacher') {
@@ -40,7 +69,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Submit answers to a quiz (save submission)
-router.post('/:id/submit', async (req, res) => {
+router.post('/:id/submit', auth, async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id);
     if (!quiz) return res.status(404).json({ error: 'Quiz not found' });
@@ -72,23 +101,15 @@ router.post('/:id/submit', async (req, res) => {
         }
       }
     });
-    // Save submission
-    let student = { username: 'Anonymous', email: 'unknown' };
-    // Try to get student info from token if present
-    try {
-      const authHeader = req.headers.authorization;
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        const jwt = require('jsonwebtoken');
-        const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
-        const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
-        if (decoded && decoded.role === 'student') {
-          student.username = decoded.username || 'Student';
-          student.email = decoded.email || 'unknown';
-        }
-      }
-    } catch {}
-    if (req.body.student) {
-      student = req.body.student;
+    // Always use req.user for student info
+    let student = {
+      username: req.user.username,
+      email: req.user.email
+    };
+    // Prevent multiple submissions by the same student for the same quiz
+    const existingSubmission = await Submission.findOne({ quizId: quiz._id, 'student.email': student.email });
+    if (existingSubmission) {
+      return res.status(400).json({ error: 'You have already submitted this quiz.' });
     }
     const submission = new Submission({
       quizId: quiz._id,
