@@ -61,11 +61,11 @@ window.addEventListener('DOMContentLoaded', async () => {
             headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
         assignments = await assignmentRes.json();
-        // Fetch all quiz submissions for this user
-        const submissionRes = await fetch('http://localhost:5000/api/submissions', {
+        // Fetch all quiz submissions for this user (use correct endpoint)
+        const quizSubmissionsRes = await fetch('http://localhost:5000/api/quizzes/my-submissions', {
             headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
-        quizSubmissions = await submissionRes.json();
+        quizSubmissions = await quizSubmissionsRes.json();
         // Fetch all assignment submissions for this user
         const assignmentSubRes = await fetch('http://localhost:5000/assignments/submissions', {
             headers: token ? { 'Authorization': 'Bearer ' + token } : {}
@@ -79,11 +79,18 @@ window.addEventListener('DOMContentLoaded', async () => {
         assignmentSubmissions = assignmentSubmissions || [];
     }
 
-    // Update stats
-    document.getElementById('stat-quizzes').textContent = quizzes.length;
-    document.getElementById('stat-completed').textContent = quizSubmissions.length;
+    // Calculate quizzes available and completed (ensure ID types match)
+    let availableQuizzes = [];
+    let completedQuizzes = [];
+    if (user.role === 'student') {
+        const attemptedQuizIds = new Set(quizSubmissions.map(sub => String(sub.quizId)));
+        availableQuizzes = quizzes.filter(q => !attemptedQuizIds.has(String(q._id)));
+        completedQuizzes = quizzes.filter(q => attemptedQuizIds.has(String(q._id)));
+    }
+
     // Calculate assignments due (not submitted, deadline in future)
     let assignmentsDueCount = 0;
+    const now = new Date();
     if (assignments && assignments.length > 0 && user.role === 'student') {
         for (const assignment of assignments) {
             try {
@@ -99,7 +106,11 @@ window.addEventListener('DOMContentLoaded', async () => {
             } catch (err) { /* ignore */ }
         }
     }
-    document.getElementById('assignments-due-count').textContent = assignmentsDueCount;
+
+    // Update stats
+    document.getElementById('stat-quizzes').textContent = availableQuizzes.length;
+    document.getElementById('stat-completed').textContent = completedQuizzes.length;
+    document.getElementById('stat-assignments').textContent = assignmentsDueCount;
 
     // Populate Recent Activity (last 3 submitted assignments)
     const recentActivity = document.getElementById('recent-activity');
@@ -164,6 +175,20 @@ window.addEventListener('DOMContentLoaded', async () => {
             </div>
         </div>`
     ).join('');
+
+    // Render Available Quizzes (not yet attempted by the student)
+    let availableQuizzesDiv = document.getElementById('available-quizzes');
+    availableQuizzesDiv.innerHTML = availableQuizzes.length === 0
+        ? '<div class="text-gray-500">No available quizzes.</div>'
+        : availableQuizzes.map(q =>
+            `<div class="bg-white rounded-xl shadow p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <div class="font-semibold">${q.title}</div>
+                    <div class="text-sm text-gray-500">${q.description || ''}</div>
+                </div>
+                <a href="quizzes.html" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 mt-2 sm:mt-0">Attempt Quiz</a>
+            </div>`
+        ).join('');
 
     // Mobile menu toggle
     const mobileMenuBtn = document.getElementById('mobile-menu-button');
