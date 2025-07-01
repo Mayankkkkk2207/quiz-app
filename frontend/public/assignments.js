@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Fetch assignments from backend
-    fetch('http://localhost:5000/assignments', {
+    fetch('https://quizsite-vxle.onrender.com/assignments', {
         headers: { 'Authorization': `Bearer ${token}` }
     })
     .then(res => res.json())
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let hasSubmitted = false;
                     let submission = null;
                     try {
-                        const res = await fetch(`http://localhost:5000/assignments/${assignment._id}/mysubmission`, {
+                        const res = await fetch(`https://quizsite-vxle.onrender.com/assignments/${assignment._id}/mysubmission`, {
                             headers: { 'Authorization': `Bearer ${token}` }
                         });
                         if (res.ok) {
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const id = btn.getAttribute('data-delete');
                     if (confirm('Are you sure you want to delete this assignment? This will also delete all related submissions.')) {
                         try {
-                            const res = await fetch(`http://localhost:5000/assignments/${id}`, {
+                            const res = await fetch(`https://quizsite-vxle.onrender.com/assignments/${id}`, {
                                 method: 'DELETE',
                                 headers: { 'Authorization': `Bearer ${token}` }
                             });
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const description = document.getElementById('assignment-description').value;
             const deadline = document.getElementById('assignment-deadline').value;
             try {
-                const res = await fetch('http://localhost:5000/assignments', {
+                const res = await fetch('https://quizsite-vxle.onrender.com/assignments', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
             try {
-                const res = await fetch(`http://localhost:5000/assignments/${currentAssignmentId}/submit`, {
+                const res = await fetch(`https://quizsite-vxle.onrender.com/assignments/${currentAssignmentId}/submit`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadSubmissions(assignmentId) {
         submissionsList.innerHTML = '<p>Loading...</p>';
         try {
-            const res = await fetch(`http://localhost:5000/assignments/${assignmentId}/submissions`, {
+            const res = await fetch(`https://quizsite-vxle.onrender.com/assignments/${assignmentId}/submissions`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (!res.ok) throw new Error('Failed to fetch submissions');
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submissions.forEach(sub => {
                 const subDiv = document.createElement('div');
                 subDiv.className = 'border rounded p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2';
-                const fileUrl = `http://localhost:5000${sub.fileUrl}`;
+                const fileUrl = `https://quizsite-vxle.onrender.com${sub.fileUrl}`;
                 subDiv.innerHTML = `
                     <div>
                         <div class="font-semibold">${sub.student.username} (${sub.student.email})</div>
@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const submissionId = form.getAttribute('data-feedback-form');
                     const feedback = form.feedback.value;
                     try {
-                        const res = await fetch(`http://localhost:5000/assignments/submission/${submissionId}/feedback`, {
+                        const res = await fetch(`https://quizsite-vxle.onrender.com/assignments/submission/${submissionId}/feedback`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const description = document.getElementById('edit-assignment-description').value;
             const deadline = document.getElementById('edit-assignment-deadline').value;
             try {
-                const res = await fetch(`http://localhost:5000/assignments/${window.currentEditAssignmentId}`, {
+                const res = await fetch(`https://quizsite-vxle.onrender.com/assignments/${window.currentEditAssignmentId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

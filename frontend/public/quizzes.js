@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             console.log('Submitting quiz:', quizData);
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:5000/api/quizzes', {
+            const res = await fetch('https://quizsite-vxle.onrender.com/api/quizzes', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadQuizzes() {
         quizzesList.innerHTML = '';
         try {
-            const res = await fetch('http://localhost:5000/api/quizzes');
+            const res = await fetch('https://quizsite-vxle.onrender.com/api/quizzes');
             const quizzes = await res.json();
             if (!Array.isArray(quizzes)) {
                 quizzesList.innerHTML = '<p class="text-red-500">Failed to load quizzes (bad response).</p>';
@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const quizId = e.target.getAttribute('data-quizid');
             // Fetch quiz details
             try {
-                const res = await fetch(`http://localhost:5000/api/quizzes/${quizId}`);
+                const res = await fetch(`https://quizsite-vxle.onrender.com/api/quizzes/${quizId}`);
                 if (!res.ok) throw new Error('Quiz not found');
                 const quiz = await res.json();
                 showQuizModal(quiz);
@@ -315,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submissionsModalOverlay.classList.remove('hidden');
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`http://localhost:5000/api/quizzes/${quizId}/submissions`, {
+                const res = await fetch(`https://quizsite-vxle.onrender.com/api/quizzes/${quizId}/submissions`, {
                     headers: token ? { 'Authorization': 'Bearer ' + token } : {}
                 });
                 const submissions = await res.json();
@@ -357,7 +357,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (confirm('Are you sure you want to delete this quiz? This will also delete all related submissions.')) {
                 try {
                     const token = localStorage.getItem('token');
-                    const res = await fetch(`http://localhost:5000/api/quizzes/${quizId}`, {
+                    const res = await fetch(`https://quizsite-vxle.onrender.com/api/quizzes/${quizId}`, {
                         method: 'DELETE',
                         headers: token ? { 'Authorization': 'Bearer ' + token } : {}
                     });
@@ -589,7 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:5000/api/quizzes/${currentQuiz._id}/submit`, {
+            const res = await fetch(`https://quizsite-vxle.onrender.com/api/quizzes/${currentQuiz._id}/submit`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -681,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadStudentQuizSubmissions() {
         if (!user || role !== 'student') return;
         try {
-            const res = await fetch('http://localhost:5000/api/quizzes/my-submissions', {
+            const res = await fetch('https://quizsite-vxle.onrender.com/api/quizzes/my-submissions', {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             const submissions = await res.json();
@@ -712,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function showQuizReview(subId) {
         // Find the submission in the last loaded submissions
         if (!lastSubmissions.length) {
-            const res = await fetch('http://localhost:5000/api/quizzes/my-submissions', {
+            const res = await fetch('https://quizsite-vxle.onrender.com/api/quizzes/my-submissions', {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             lastSubmissions = await res.json();
@@ -758,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Store last submissions for review
     (async () => {
         if (user && role === 'student') {
-            const res = await fetch('http://localhost:5000/api/quizzes/my-submissions', {
+            const res = await fetch('https://quizsite-vxle.onrender.com/api/quizzes/my-submissions', {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             lastSubmissions = await res.json();
