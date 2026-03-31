@@ -15,7 +15,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(helmet());
 
 // Serve frontend static files (before API routes)
-app.use(express.static(path.join(__dirname, '../frontend/public')));
+app.use(express.static(path.join(__dirname, './public')));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
@@ -39,11 +39,11 @@ app.use('/assignments', assignmentsRouter);
 
 // Fallback to index.html for SPA (must be after API routes)
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public', 'index.html'));
+  res.sendFile(path.join(__dirname, './public', 'index.html'));
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public', 'index.html'));
+  res.sendFile(path.join(__dirname, './public', 'index.html'));
 });
 
 process.on('unhandledRejection', (reason, promise) => {
