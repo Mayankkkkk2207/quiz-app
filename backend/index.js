@@ -14,6 +14,9 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(helmet());
 
+// Serve frontend static files (before API routes)
+app.use(express.static(path.join(__dirname, '../frontend/public')));
+
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -34,18 +37,14 @@ app.use('/api/auth', authRouter);
 const assignmentsRouter = require('./routes/assignments');
 app.use('/assignments', assignmentsRouter);
 
-// Root route
+// Fallback to index.html for SPA (must be after API routes)
 app.get('/', (req, res) => {
-  res.send('Quiz App Backend Running');
+  res.sendFile(path.join(__dirname, '../frontend/public', 'index.html'));
 });
 
-// Serve frontend static files in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/public')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/public', 'index.html'));
-  });
-}
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public', 'index.html'));
+});
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection:', reason);
