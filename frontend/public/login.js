@@ -46,7 +46,7 @@ loginForm.addEventListener('submit', async function(e) {
             return;
         }
         try {
-            const res = await fetch('https://quizsite-vxle.onrender.com/api/auth/login', {
+            const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
@@ -75,7 +75,7 @@ loginForm.addEventListener('submit', async function(e) {
             return;
         }
         try {
-            const res = await fetch('https://quizsite-vxle.onrender.com/api/auth/register', {
+            const res = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, email, password, role })

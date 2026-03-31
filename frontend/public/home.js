@@ -54,20 +54,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     let assignmentSubmissions = [];
     try {
         // Fetch all quizzes
-        const quizRes = await fetch('https://quizsite-vxle.onrender.com/api/quizzes');
+        const quizRes = await fetch('/api/quizzes');
         quizzes = await quizRes.json();
         // Fetch all assignments
-        const assignmentRes = await fetch('https://quizsite-vxle.onrender.com/assignments', {
+        const assignmentRes = await fetch('/assignments', {
             headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
         assignments = await assignmentRes.json();
         // Fetch all quiz submissions for this user (use correct endpoint)
-        const quizSubmissionsRes = await fetch('https://quizsite-vxle.onrender.com/api/quizzes/my-submissions', {
+        const quizSubmissionsRes = await fetch('/api/quizzes/my-submissions', {
             headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
         quizSubmissions = await quizSubmissionsRes.json();
         // Fetch all assignment submissions for this user
-        const assignmentSubRes = await fetch('https://quizsite-vxle.onrender.com/assignments/submissions', {
+        const assignmentSubRes = await fetch('/assignments/submissions', {
             headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
         assignmentSubmissions = await assignmentSubRes.json();
@@ -94,7 +94,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (assignments && assignments.length > 0 && user.role === 'student') {
         for (const assignment of assignments) {
             try {
-                const res = await fetch(`https://quizsite-vxle.onrender.com/assignments/${assignment._id}/mysubmission`, {
+                const res = await fetch(`/assignments/${assignment._id}/mysubmission`, {
                     headers: token ? { 'Authorization': 'Bearer ' + token } : {}
                 });
                 if (res.ok) {
@@ -118,7 +118,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (assignments && assignments.length > 0 && user.role === 'student') {
         for (const assignment of assignments) {
             try {
-                const res = await fetch(`https://quizsite-vxle.onrender.com/assignments/${assignment._id}/mysubmission`, {
+                const res = await fetch(`/assignments/${assignment._id}/mysubmission`, {
                     headers: token ? { 'Authorization': 'Bearer ' + token } : {}
                 });
                 if (res.ok) {
@@ -151,7 +151,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (assignments && assignments.length > 0 && user.role === 'student') {
         for (const assignment of assignments) {
             try {
-                const res = await fetch(`https://quizsite-vxle.onrender.com/assignments/${assignment._id}/mysubmission`, {
+                const res = await fetch(`/assignments/${assignment._id}/mysubmission`, {
                     headers: token ? { 'Authorization': 'Bearer ' + token } : {}
                 });
                 if (res.ok) {
